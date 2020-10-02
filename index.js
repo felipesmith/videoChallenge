@@ -29,13 +29,21 @@ io.on("connect", (socket) => {
     console.log("Connections Remaining: " + clients.length);
   });
 
-  socket.on("play", () => {
-    console.log("The user " + socket.id + " requested to play the video");
-    socket.broadcast.emit("play");
+  socket.on("play", (data) => {
+    console.log(
+      "The user " + socket.id + " requested to play the video at " + data.time
+    );
+    socket.broadcast.emit("play", {
+      time: data.time,
+    });
   });
 
-  socket.on("pause", () => {
-    console.log("The user " + socket.id + " requested to pause the video");
-    socket.broadcast.emit("pause");
+  socket.on("pause", (data) => {
+    console.log(
+      "The user " + socket.id + " requested to pause the video at " + data.time
+    );
+    socket.broadcast.emit("pause", {
+      time: data.time,
+    });
   });
 });

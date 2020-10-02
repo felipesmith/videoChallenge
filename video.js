@@ -20,24 +20,26 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
-  event.target.playVideo();
-  event.target.pauseVideo();
+  // event.target.playVideo();
+  // setTimeout(pauseVideo, 0.2);
 }
 
 var playerState = -1;
 function onPlayerStateChange(event) {
   console.log(event);
+  console.log(playerState);
+  var currentTime = event.target.getCurrentTime();
   if (
     event.data == YT.PlayerState.PLAYING &&
     playerState != YT.PlayerState.PLAYING
   ) {
-    playVideo();
+    playVideo(currentTime);
     playerState = YT.PlayerState.PLAYING;
   } else if (
     event.data == YT.PlayerState.PAUSED &&
     playerState != YT.PlayerState.PAUSED
   ) {
-    pauseVideo();
+    pauseVideo(currentTime);
     playerState = YT.PlayerState.PAUSED;
   } else if (event.data == YT.PlayerState.ENDED) {
     player.playVideo();
@@ -51,24 +53,30 @@ window.onclose = function () {
   socket.disconnect();
 };
 
-socket.on("play", () => {
+socket.on("play", (data) => {
+  player.seekTo(data.time);
   player.playVideo();
   console.log("The user " + socket.id + " requested to play the video HTML");
 });
 
-socket.on("pause", () => {
+socket.on("pause", (data) => {
+  //player.seekTo(data.time);
   player.pauseVideo();
   console.log("The user " + socket.id + " requested to pause the video HTML");
 });
 
-function playVideo() {
-  console.log("Playing");
-  socket.emit("play");
+function playVideo(currentTime) {
+  console.log("Playing  at: " + currentTime);
+  socket.emit("play", {
+    time: currentTime,
+  });
   player.playVideo();
 }
 
-function pauseVideo() {
-  console.log("Pausa2");
-  socket.emit("pause");
+function pauseVideo(currentTime) {
+  console.log("Pausa2 at: " + currentTime);
+  socket.emit("pause", {
+    time: currentTime,
+  });
   player.pauseVideo();
 }
